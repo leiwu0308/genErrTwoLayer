@@ -34,6 +34,18 @@ class TwoLayerNet(nn.Module):
         D = D.pow(2).sum()
         return math.sqrt(A*D)
 
+    def l2norm(self):
+        B = self.fc1.weight
+        C = self.fc1.bias
+        A = self.fc2.weight
+
+        b = B.norm(p=2)
+        c = C.norm(p=2)
+        a = A.norm(p=2)
+
+        res = b*b + c*c + a*a
+        return res
+
 
     def forward(self,x):
         o = x.view(x.size(0),-1)
