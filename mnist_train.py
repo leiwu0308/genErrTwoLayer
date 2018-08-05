@@ -18,12 +18,13 @@ from trainer import *
 from data import load_mnist
 
 argparser = argparse.ArgumentParser()
-argparser.add_argument('--batch_size',type=int,default=100)
 argparser.add_argument('--width',type=int,default=1000)
 argparser.add_argument('--nepochs',type=int,default=100)
 argparser.add_argument('--lr',type=float,default=0.01)
+argparser.add_argument('--initialize_factor',type=float,default=1)
 argparser.add_argument('--lmbd', type=float, default=0.0)
 argparser.add_argument('--nsamples', type=int, default=60000)
+argparser.add_argument('--batch_size',type=int,default=100)
 args = argparser.parse_args()
 
 # Data Load
@@ -34,7 +35,7 @@ train_dl, test_dl = load_mnist(batch_size = args.batch_size,
 
 # Train the model
 
-net = TwoLayerNet(784,args.width,10)
+net = TwoLayerNet(784,args.width,10,args.initialize_factor)
 net = net.cuda()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(net.parameters(),
