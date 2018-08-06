@@ -16,10 +16,10 @@ class TwoLayerNet(nn.Module):
         self.A = self.fc2.weight
 
         # initialization
-        self.C.zeros_()
+        self.C.data.zero_()
         m,d = self.B.shape
-        self.B.normal_(0,math.sqrt(2*initialize_factor/d))
-        self.A.normal_(0,math.sqrt(2*initialize_factor/m))
+        self.B.data.normal_(0,math.sqrt(2*initialize_factor/d))
+        self.A.data.normal_(0,math.sqrt(2*initialize_factor/m))
 
 
     def path_norm(self):
