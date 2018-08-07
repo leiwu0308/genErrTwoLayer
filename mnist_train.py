@@ -3,6 +3,7 @@ import os
 import argparse
 import math
 from copy import deepcopy
+import pickle
 
 import numpy as np 
 import matplotlib 
@@ -91,15 +92,22 @@ plt.legend()
 
 plt.subplot(1,3,2)
 plt.plot(records[:,1],label='train accuracy')
-plt.plot(records[:,3],label='test accuracy')
+plt.plot(records[:,3],label='test accuracy: %.2f'%(te_acc))
 plt.legend()
 
 plt.subplot(1,3,3)
 plt.semilogy(records[:,4],label='path norm')
+plt.ylim([1,2e6])
 plt.legend()
 
-plt.savefig('figures/mnist_width%d_lmbd%.3f_lr%.1e_ifactor%.1f_bz%d_wd%.2e_.png'%(
+file_prefix = 'mnist_width%d_lmbd%.3f_lr%.1e_ifactor%.1f_bz%d_wd%.2e'%(
                 args.width,args.lmbd,args.lr,args.initialize_factor,args.batch_size,
-                args.weight_decay))
+                args.weight_decay
+            )
+plt.savefig(
+    'figures/%s_.png'%(file_prefix),bbox_inches='tight'
+)
 
+with open('data/%s.pkl'%(file_prefix),'wb') as f:
+    pickle.dump(records,f)
 
