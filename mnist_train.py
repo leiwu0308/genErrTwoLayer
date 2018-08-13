@@ -5,8 +5,8 @@ import math
 from copy import deepcopy
 import pickle
 
-import numpy as np 
-import matplotlib 
+import numpy as np
+import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -58,7 +58,8 @@ scheduler = lr_scheduler.MultiStepLR(optimizer,
                                      int(args.nepochs*0.8),
                                      int(args.nepochs*0.9)],
                           gamma=0.1)
-lmbd_base = math.log10(2*784)/args.nsamples
+lmbd_base = math.log10(2*784)/args.nsamples/10.0
+lmbd = lmbd_base * args.lmbd
 records = []
 
 print('lambda=%.2e'%(lmbd_base*args.lmbd))
@@ -69,15 +70,18 @@ for epoch in range(args.nepochs):
     scheduler.step()
     current_lr = scheduler.get_lr()[0]
 
-    train_epoch(net,criterion,optimizer,train_dl,args.lmbd * lmbd_base)
+    train_epoch(net,criterion,optimizer,train_dl,lmbd)
     tr_loss, tr_acc = eval(net,criterion,train_dl)
     te_loss, te_acc = eval(net,criterion,test_dl)
+    total_loss = tr_loss + lmbd * net.path_norm().item()
 
     now = time.time()
-    records.append((tr_loss,tr_acc,te_loss,te_acc,net.path_norm().item()))
-    print('[%3d/%d, %.0f seconds]| lr=%.2e,  tr_err: %.1e, tr_acc: %.2f |\t te_err: %.1e, te_acc: %.2f, pnorm: %.1e'%(epoch+1,args.nepochs,now-since,
-        current_lr,tr_loss,tr_acc,te_loss,te_acc,net.path_norm().item()))
+    records.append((tr_loss,tr_acc,te_loss,te_acc,net.path_norm().item(),total_loss))
+    print('[%3d/%d, %.0f seconds]| total_loss=%.2e,  tr_err: %.1e, tr_acc: %.2f |\t te_err: %.1e, te_acc: %.2f, pnorm: %.1e'%(
+                epoch+1,args.nepochs,now-since,
+                total_loss,tr_loss,tr_acc,te_loss,te_acc,net.path_norm().item()))
 print('===> End of training the network -----')
+print('the error of objective function is %.2e'%(total_loss))
 
 save_model(net,
         'checkpoints/mnist_width:%d_nsamples:%d_lmbd:%.2e_teacc:%.2f_tracc:%.2f_.pkl'%(
@@ -100,9 +104,9 @@ plt.semilogy(records[:,4],label='path norm')
 plt.ylim([1,2e6])
 plt.legend()
 
-file_prefix = 'mnist_width%d_lmbd%.3f_lr%.1e_ifactor%.1f_bz%d_wd%.2e'%(
+file_prefix = 'mnist_width%d_lmbd%.3f_lr%.1e_ifactor%.1f_bz%d_wd%.2e_totalLoss%.2e'%(
                 args.width,args.lmbd,args.lr,args.initialize_factor,args.batch_size,
-                args.weight_decay
+                args.weight_decay, tr_loss +args.lmbd * lmbd_base * net.path_norm().item()
             )
 plt.savefig(
     'figures/%s_.png'%(file_prefix),bbox_inches='tight'

@@ -11,7 +11,7 @@ def eval(model,criterion,dataloader):
 
         logits = model(batch_x)
         error = criterion(logits,batch_y)
-        loss += error.data[0]
+        loss += error.item()
 
         acc += accuracy(logits.data,batch_y.data)
 
@@ -54,5 +54,5 @@ def accuracy(logit, target):
 
     # print((y_true==y_pred).shape)
 
-    acc = (y_true==y_pred).float().sum()*100.0/batch_size 
+    acc = (y_true==y_pred).float().sum()*100.0/batch_size
     return acc

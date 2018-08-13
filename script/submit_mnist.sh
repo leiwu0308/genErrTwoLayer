@@ -1,18 +1,24 @@
 #!/bin/bash
 
-#SBATCH -J 'mnist-fnn'
+
+#SBATCH -J 'mnist_lmbd'
 #SBATCH -N 1
-#SBATCH --cpus-per-task=6
+#SBATCH --cpus-per-task=2
 #SBATCH -t 20:00:00
 #SBATCH --gres=gpu:1
-#SBATCH -a 0
+#SBATCH -a 0-3
 
-#width=(50 100 500 1000 5000 10000 50000 100000 500000)
-#nepochs=(200 200 200 200 200 200 200 200 200)
-nsamples=(50 5000 10000 50000 60000)
+source activate pytorch0.4
+which python
 
-python mnist.py --nepochs 100 \
-                --width 10000 \
-                --lr 0.001 --nsamples ${nsamples[$SLURM_ARRAY_TASK_ID]} \
-                --lmbd 0.0 --batch_size 50
+#wd=(1e-4 5e-4 1e-3 5e-3 1e-2 5e-2 1e-1)
+nsamples=(10 50 100 500)
+
+python mnist_train.py --nepochs 6000 \
+                --width 10000 --nsamples ${nsamples[$SLURM_ARRAY_TASK_ID]} \
+                --lr 0.001 --initialize_factor 5 \
+                --lmbd 0.01 \
+                --weight_decay 0.00 \
+                --batch_size 100
+
 
