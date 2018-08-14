@@ -8,7 +8,7 @@ import torchvision.datasets as dsets
 # High-level function to load data
 ###############################
 def load_mnist(batch_size = 100,num_wrong = 0,nsamples = -1,
-            fashion = False,root = None,stop = True, one_hot=False):
+            fashion = False,root = None,stop = True, one_hot=False,classes=[]):
     train_loader = MNISTLoader(
                             root = root,
                             train = True,
@@ -17,7 +17,8 @@ def load_mnist(batch_size = 100,num_wrong = 0,nsamples = -1,
                             nsamples = nsamples,
                             num_wrong = num_wrong,
                             stop = stop,
-                            one_hot = one_hot
+                            one_hot = one_hot,
+                            classes = classes
                         )
     test_loader = MNISTLoader(
                             root = root,
@@ -26,7 +27,8 @@ def load_mnist(batch_size = 100,num_wrong = 0,nsamples = -1,
                             fashion = fashion,
                             num_wrong = num_wrong,
                             stop=True,
-                            one_hot = one_hot
+                            one_hot = one_hot,
+                            classes = classes
                         )
 
     return train_loader,test_loader
@@ -78,6 +80,23 @@ def select_samples(X,y,nsamples=-1,num_wrong=0):
                 y_new[i] = y_wrong
                 break
     return X_new,y_new
+
+def select_classes(X,y,classes=[]):
+    if len(classes)==0:
+        return X,y
+    X_new = X.clone()
+    y_new = y.clone()
+    classes = set(classes)
+    idx = 0
+    for xi,yi in zip(X,y):
+        if yi.item() in classes:
+            X_new[idx] = xi
+            y_new[idx] = yi
+            idx += 1
+
+    X_new = X_new[0:idx]
+    y_new = y_new[0:idx]
+    return X_new, y_new
 
 
 class RandomHorizontalFlip:
@@ -196,7 +215,7 @@ class CIFARLoader:
 class MNISTLoader:
     def __init__(self,train=True,batch_size=100,
                     root=None,fashion=False,
-                    nsamples=-1,num_wrong=0,stop=True,one_hot=False):
+                    nsamples=-1,num_wrong=0,stop=True,one_hot=False,classes=[]):
         self.train = train
         self.fashion = fashion
         self.stop = stop
@@ -208,13 +227,17 @@ class MNISTLoader:
         else:
             self.root = './data/fashionmnist' if root is None else root
             dset_loader = dsets.FashionMNIST
+
         if train:
             dset = dset_loader(self.root,train=True,download=True)
             X,y = dset.train_data,dset.train_labels
+            X,y = select_classes(X,y,classes)
+            nsamples = min(nsamples,X.size(0))
             X,y = select_samples(X,y,nsamples,num_wrong)
         else:
             dset = dset_loader(self.root,train=False,download=True)
             X,y = dset.test_data,dset.test_labels
+            X,y = select_classes(X,y,classes)
 
         self.X = X.unsqueeze(1).float()/255
         self.y = y
@@ -264,3 +287,8 @@ def to_one_hot(labels):
     one_hot_labels.zero_()
     one_hot_labels.scatter_(1, labels, 1)
     return one_hot_labels
+
+
+if __name__ == '__main__':
+    trdl,te_dl = load_mnist(classes=[0,1])
+    print(trdl.X.shape,trdl.y)

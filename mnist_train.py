@@ -34,11 +34,11 @@ os.environ['CUDA_VISIBLE_DEVICES']=args.gpuid
 train_dl, test_dl = load_mnist(batch_size = args.batch_size,
                                 nsamples = args.nsamples,
                                 root = './data/mnist',
-                                one_hot = True)
+                                one_hot = True,
+                                classes = [0,1])
 
 # Train the model
-
-net = TwoLayerNet(784,args.width,10,args.initialize_factor)
+net = TwoLayerNet(784,args.width,2,args.initialize_factor)
 net = net.cuda()
 criterion = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(net.parameters(),
@@ -69,18 +69,32 @@ for epoch in range(args.nepochs):
 
     now = time.time()
     records.append((tr_loss,tr_acc,te_loss,te_acc,net.path_norm().item(),total_loss))
-    print('[%3d/%d, %.0f seconds]| total_loss=%.2e,  tr_err: %.1e, tr_acc: %.2f |
-        \t te_err: %.1e, te_acc: %.2f, pnorm: %.1e'%(
+    print('[%3d/%d, %.0f secs]| tot_l=%.2e,  tr_err: %.1e, tr_acc: %.2f | te_err: %.1e, te_acc: %.2f, pnorm: %.1e'%(
                 epoch+1,args.nepochs,now-since,
                 total_loss,tr_loss,tr_acc,te_loss,te_acc,net.path_norm().item()))
 print('===> End of training the network -----')
 print('the error of objective function is %.2e'%(total_loss))
 
-file_prefix = 'mnist_wdth%d_lmbd%.3f_wd%.2e_lr%.1e_init%.1f_bz%d_totalLoss%.2e'%(
+
+
+
+####################################################
+# Store information
+####################################################
+file_prefix = 'mnist_wdth%d_lmbd%.0e_wd%.0e_lr%.1e_init%.1f_bz%d_totalLoss%.2e'%(
                 args.width,args.lmbd,args.weight_decay,args.lr,args.initialize_factor,
                 args.batch_size,total_loss)
-    )
-res = {'model_state':net.state_dict(),'learning_process':records}
+res = {
+   'model_state':net.state_dict(),
+   'learning_process':records,
+   'nsamples':args.nsamples,
+   'weight_decay':args.weight_decay,
+   'lambda': args.lmbd,
+   'width': args.width,
+   'init_var': args.initialize_factor,
+   'batch_size': args.batch_size,
+   'lr': args.lr
+}
 with open('checkpoints/%s.pkl'%(file_prefix),'wb') as f:
     pickle.dump(res,f)
 
