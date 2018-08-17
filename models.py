@@ -42,7 +42,7 @@ class TwoLayerNet(nn.Module):
         a = self.A.norm(p=2)
 
         res = b*b + c*c + a*a
-        return math.sqrt(res)
+        return res
 
 
     def forward(self,x):
@@ -50,6 +50,6 @@ class TwoLayerNet(nn.Module):
         o = self.fc1(o)
         o = F.relu(o)
         o = self.fc2(o)
-        return o
+        return o.squeeze()
 
 

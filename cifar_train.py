@@ -13,7 +13,7 @@ from torch.optim import lr_scheduler
 
 from models import TwoLayerNet
 from trainer import *
-from data import load_mnist
+from data import load_cifar
 
 
 def train_model(args, net, train_dl, test_dl, device, lmbd_base):
@@ -98,24 +98,24 @@ def main():
     argparser.add_argument('--watch_lp', action='store_true')
     argparser.add_argument('--gpuid', default='0')
     args = argparser.parse_args()
-    device = torch.device('cuda')
+    device = torch.device('cuda:2')
 
     # Data Load
-    train_dl, test_dl = load_mnist(batch_size=args.batch_size,
+    train_dl, test_dl = load_cifar(batch_size=args.batch_size,
                                    nsamples=args.nsamples,
-                                   root='./data/mnist',
+                                   root='./data/cifar10',
                                    one_hot=False,
-                                   classes=[3, 5])
+                                   nclasses=2)
 
     # repeat experiments of n times
     res_t = []
     for _ in range(args.ntries):
-        net = TwoLayerNet(784, args.width, 1, args.init_fac).to(device)
+        net = TwoLayerNet(3*32*32, args.width, 1, args.init_fac).to(device)
 
-        lmbd_base = math.log10(784)/args.nsamples
-        res,_ = train_model(args, net, train_dl, test_dl, device, lmbd_base)
+        lmbd_base = math.log10(3*32*32)/args.nsamples
+        res, _ = train_model(args, net, train_dl, test_dl, device, lmbd_base)
         res_t.append(res)
-    print(res_t)
+
     tr_err, tr_acc, te_err, te_acc, pnorm, l2norm = zip(*res_t)
 
     res = {
@@ -135,7 +135,7 @@ def main():
         'l2norm': l2norm
     }
 
-    file_prefix = 'mnist_wdth%d_lmbd%.0e_wd%.0e_lr%.1e_init%.1f_bz%d' % (
+    file_prefix = 'cifar10_wdth%d_lmbd%.0e_wd%.0e_lr%.1e_init%.1f_bz%d' % (
                   args.width, args.lmbd, args.weight_decay, args.lr, args.init_fac,
                   args.batch_size)
 

@@ -31,12 +31,14 @@ import matplotlib.pyplot as plt
 
 class AsympRate:
 	def __init__(self,x0,bias,slope=0.5):
-		self.x0 = x0
-		self.b = bias
+		self.x0 = np.log10(x0)
+		self.b = np.log10(bias)
 		self.slope = slope
 
 	def __call__(self,x):
-		return - self.slope * (x-self.x0) + self.b
+		y = - self.slope * (np.log10(x)-self.x0) + self.b
+		y = np.power(10,y)
+		return y
 
 # data 1
 nsamples = [10, 50, 100, 500, 1000, 5000, 10000,50000]
@@ -65,18 +67,44 @@ data = [
 
 # data 4
 data = [
-	[5,4.94e-2,2.1e-3,6.9e-2,1.9],
-	[50,1.02e-2,9.1e-4,3.1e-2,3.6],
-	[100,7.34e-3,8.3e-4,1.4e-2,5.1],
-	[500,2.58e-3,4.1e-4,4.7e-3,8.5],
-	[1000,1.65e-3,2.7e-4,2.8e-3,11]
+	[5,4.94e-2,2.1e-3,7.2e-2,1.9],
+	[50,1.02e-2,9.0e-4,3.2e-2,3.6],
+	[100,7.33e-3,7.7e-4,1.3e-2,5.1],
+	[500,2.52e-3,3.8e-4,4.6e-3,8.4],
+	[1000,1.59e-3,2.5e-4,2.9e-3,11]
 ]
 
-data = np.log10(np.asarray(data))
+# data 4
+data = [
+	[5,9.46e-2,8.3e-3,8.8e-2,1.7],
+	[50,1.84e-2,2.6e-3,3.3e-2,3.1],
+	[100,1.33e-2,2.1e-3,1.3e-2,4.4],
+	[500,4.44e-3,9.4e-4,4.6e-3,6.8],
+	[1000,2.74e-3,6.5e-4,3.0e-3,8.2],
+	[5000,1.21e-3,2.4e-4,9.0e-4,19]
+]
+
+data = [
+	[5,1e-1,6.7e0-3,2.9e-1,1.8],
+	[50,2.98e-2,3.7e-3,5.2e-2,5.1],
+	[100,2.10e-2,3.1e-3,3.9e-2,7],
+	[500,9.9e-3,1.6e-3,1.8e-2,16],
+	[1000,6.69e-3,1.0e-3,1.2e-3,22],
+	[5000,3.10e-3,5.0e-4,6.1e-3,51]
+]
+
+data = [
+	# [ 5,2.50e-1,2.5e-1,2.5e-1,3.0e-6],
+	[ 50,2.30e-1,1.5e-1,1.9e-1,1.3e0],
+	[100,1.84e-1,9.7e-2,1.2e-1,3.0e0],
+	[500,8.42e-2,3.4e-2,4.2e-2,8.7e0],
+	[1000,5.79e-2,2.3e-2,2.9e-2,1.2e1]
+]
+
+data = np.asarray(data)
 xR= data[:,0]
 func_teacc = AsympRate(xR[0],data[0,3],slope=0.5)
 func_pnorm = AsympRate(xR[0],data[0,4],slope=-0.5)
-print(func_pnorm.slope)
 
 
 te_asym = func_teacc(xR)
@@ -86,8 +114,8 @@ pnorm_real = data[:,4]
 
 
 
-plt.plot(xR,te_real,'-o',label=r'test loss')
-plt.plot(xR,te_asym,'--k',label=r'$1/\sqrt{n}$')
+plt.loglog(xR,te_real,'-o',label=r'test loss')
+plt.loglog(xR,te_asym,'--k',label=r'$1/\sqrt{n}$')
 plt.legend(fontsize=15)
 plt.xlabel(r'$\log(n)$',fontsize=15)
 plt.ylabel(r'$\log(error)$',fontsize=15)
@@ -95,8 +123,8 @@ plt.savefig('./figures/teloss_vs_nsample.png',bbox_inches='tight')
 
 
 plt.figure()
-plt.plot(xR,pnorm_real,'-*',label=r'path norm')
-plt.plot(xR,pnorm_asym,'--k',label=r'$n^{1/2}$')
+plt.loglog(xR,pnorm_real,'-*',label=r'path norm')
+plt.loglog(xR,pnorm_asym,'--k',label=r'$n^{1/2}$')
 plt.legend(fontsize=15)
 plt.xlabel(r'$\log(n)$',fontsize=15)
 plt.ylabel(r'$\log(error)$',fontsize=15)

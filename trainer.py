@@ -2,34 +2,33 @@ import time
 import torch
 from torch.autograd import Variable
 
-def eval(model,criterion,dataloader):
+def eval(model,criterion,dataloader,device):
     model.eval()
     loss, acc = 0,0
     for batch_x, batch_y in dataloader:
-        batch_x = Variable(batch_x.cuda())
-        batch_y = Variable(batch_y.cuda())
+        batch_x = batch_x.to(device)
+        batch_y = batch_y.to(device)
 
         logits = model(batch_x)
         error = criterion(logits,batch_y)
         loss += error.item()
 
-        acc += accuracy(logits.data,batch_y.data)
+        acc += accuracy(logits,batch_y)
 
     loss /= len(dataloader)
     acc /= len(dataloader)
     return loss, acc
 
-def train_epoch(model,criterion,optimizer,dataloader,lmbd=0.0):
+def train_epoch(model,criterion,optimizer,dataloader,device,lmbd=0.0):
     model.train()
     for batch_x,batch_y in dataloader:
-        batch_x = Variable(batch_x.cuda())
-        batch_y = Variable(batch_y.cuda())
+        batch_x = batch_x.to(device)
+        batch_y = batch_y.to(device)
 
         def closure():
             optimizer.zero_grad()
             logits = model(batch_x)
-            # print(logits)
-            error = criterion(logits,batch_y) + lmbd * model.path_norm()
+            error =  criterion(logits,batch_y) + lmbd*model.path_norm()
             error.backward()
             return error
 
@@ -55,4 +54,5 @@ def accuracy(logit, target):
     # print((y_true==y_pred).shape)
 
     acc = (y_true==y_pred).float().sum()*100.0/batch_size
+    acc = acc.item()
     return acc

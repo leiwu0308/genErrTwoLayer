@@ -15,11 +15,10 @@ which python
 nsamples=(10 100 500 1000 5000)
 nepochs=(10000 10000 10000 10000 5000)
 
-python mnist_train.py --nepochs ${nepochs[$SLURM_ARRAY_TASK_ID]} \
+python cifar_train.py --nepochs ${nepochs[$SLURM_ARRAY_TASK_ID]} \
                 --width 10000 --nsamples ${nsamples[$SLURM_ARRAY_TASK_ID]} \
                 --lr 0.005 --init_fac 1 \
                 --lmbd 1 \
                 --weight_decay 0.00 \
                 --batch_size 100
-
 
