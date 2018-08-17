@@ -96,9 +96,9 @@ def main():
     argparser.add_argument('--lr', type=float, default=0.01)
     argparser.add_argument('--ntries', type=int, default=1)
     argparser.add_argument('--watch_lp', action='store_true')
-    argparser.add_argument('--gpuid', default='0')
+    argparser.add_argument('--device', default='cuda')
     args = argparser.parse_args()
-    device = torch.device('cuda:2')
+    device = torch.device(args.device)
 
     # Data Load
     train_dl, test_dl = load_cifar(batch_size=args.batch_size,

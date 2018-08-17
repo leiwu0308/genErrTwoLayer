@@ -3,11 +3,12 @@
 
 source activate pytorch0.4
 
-python cifar_train.py --nepochs 100 \
-                --width 1000 \
-                --lr 0.001 --nsamples 1000 \
+python mnist_train.py --nepochs 500 \
+                --width 10000 \
+                --lr 0.005 --nsamples 1000 \
                 --batch_size 100 \
-                --init_fac 10 \
+                --init_fac 0.1 \
                 --weight_decay 0.0 \
-                --lmbd 1
+                --lmbd 0.0 \
+                --device cuda:2
 
