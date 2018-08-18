@@ -143,6 +143,8 @@ def main():
     if args.watch_lp:
         watch_learning_process(records, file_prefix)
 
+    if not os.path.exists(args.dir):
+        os.makedirs(args.dir)
     with open('%s/%s_.pkl' % (args.dir,file_prefix), 'wb') as f:
         pickle.dump(res, f)
 

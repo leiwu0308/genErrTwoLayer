@@ -97,6 +97,7 @@ def main():
     argparser.add_argument('--ntries', type=int, default=1)
     argparser.add_argument('--watch_lp', action='store_true')
     argparser.add_argument('--device', default='cuda')
+    argparser.add_argument('--dir', default='checkpoints/')
     args = argparser.parse_args()
     device = torch.device(args.device)
 
@@ -135,14 +136,14 @@ def main():
         'l2norm': l2norm
     }
 
-    file_prefix = 'cifar10_wdth%d_lmbd%.0e_wd%.0e_lr%.1e_init%.1f_bz%d' % (
+    file_prefix = 'cifar10_wdth%d_lmbd%.0e_wd%.0e_lr%.1e_init%.1f_bz%d_nsamples%d' % (
                   args.width, args.lmbd, args.weight_decay, args.lr, args.init_fac,
-                  args.batch_size)
+                  args.batch_size,args.nsamples)
 
     if args.watch_lp:
         watch_learning_process(records, file_prefix)
 
-    with open('checkpoints/%s_.pkl' % (file_prefix), 'wb') as f:
+    with open('%s/%s_.pkl' % (args.dir,file_prefix), 'wb') as f:
         pickle.dump(res, f)
 
 if __name__ == '__main__':
