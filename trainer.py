@@ -21,6 +21,7 @@ def eval(model,criterion,dataloader,device):
 
 def train_epoch(model,criterion,optimizer,dataloader,device,lmbd=0.0):
     model.train()
+    err_total = 0
     for batch_x,batch_y in dataloader:
         batch_x = batch_x.to(device)
         batch_y = batch_y.to(device)
@@ -32,7 +33,9 @@ def train_epoch(model,criterion,optimizer,dataloader,device,lmbd=0.0):
             error.backward()
             return error
 
-        optimizer.step(closure)
+        err = optimizer.step(closure)
+        err_total += err.item()
+    return err_total/len(dataloader)
 
 
 def save_model(net,filename):

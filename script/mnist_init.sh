@@ -17,8 +17,8 @@ nepochs=(10000 10000 10000 10000 10000 10000 10000)
 
 python mnist_train.py --nepochs ${nepochs[$SLURM_ARRAY_TASK_ID]} \
                 --width 10000 --nsamples 100 \
-                --lr 0.01 --init_fac 1 \
-                --lmbd 1 \
+                --lr 0.01 --init_fac ${init[$SLURM_ARRAY_TASK_ID]} \
+                --lmbd 0 \
                 --weight_decay 0.00 \
                 --batch_size 100 \
                 --dir checkpoints/mnist_w10000_n100 \

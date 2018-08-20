@@ -7,22 +7,19 @@
 #SBATCH -t 20:00:00
 #SBATCH --gres=gpu:1
 #SBATCH -a 0-6
-#SBATCH -o ./logs/mnist_%A_%a.out
+#SBATCH -o ./logs/mnist_n100_init_%A_%a.out
 
 source activate pytorch0.4
 which python
 
-nsamples=(10 100 300 500 1000 2000 5000)
-nepochs=(1000 1000 1000 1000 1000 1000 1000)
+width=(16 64 256 1024 4096 16384 65536)
+nepochs=(10000 10000 10000 10000 10000 10000 10000)
 
 python mnist_train.py --nepochs ${nepochs[$SLURM_ARRAY_TASK_ID]} \
-                --width 10000 --nsamples ${nsamples[$SLURM_ARRAY_TASK_ID]} \
-                --lr 0.01 --init_fac 1 \
-                --lmbd 0 \
+                --width ${width[$SLURM_ARRAY_TASK_ID]} --nsamples 100 \
+                --lr 0.001 --init_fac 1 \
+                --lmbd 1 \
                 --weight_decay 0.00 \
                 --batch_size 100 \
-                --dir checkpoints/mnist_w10000_lmbd0_init1 \
+                --dir checkpoints/mnist_n100_lambd1_w \
                 --ntries 3 \
-
-
-

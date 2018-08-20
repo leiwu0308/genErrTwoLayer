@@ -18,8 +18,8 @@ nepochs=(10000 10000 10000 10000 10000)
 python cifar_train.py --nepochs ${nepochs[$SLURM_ARRAY_TASK_ID]} \
                 --width 10000 --nsamples ${nsamples[$SLURM_ARRAY_TASK_ID]} \
                 --lr 0.001 --init_fac 1 \
-                --lmbd 0.5 \
+                --lmbd 1 \
                 --weight_decay 0.00 \
                 --batch_size 100 \
-                --dir checkpoints/cifar10_w10000_init1_lmbd0.5
+                --dir checkpoints/cifar10_w20000_init1_lmbd1
 
