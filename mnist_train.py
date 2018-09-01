@@ -114,6 +114,7 @@ def main():
         net = TwoLayerNet(784, args.width, 1, args.init_fac).to(device)
 
         lmbd_base = math.log10(784)/args.nsamples
+        lmbd_base = math.sqrt(lmbd_base)
         res,_ = train_model(args, net, train_dl, test_dl, device, lmbd_base)
         res_t.append(res)
     print(res_t)

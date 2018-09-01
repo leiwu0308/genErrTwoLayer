@@ -13,13 +13,13 @@ source activate pytorch0.4
 which python
 
 width=(16 64 256 1024 4096 16384 65536)
-nepochs=(10000 10000 10000 10000 10000 10000 10000)
+nepochs=(5000 5000 1000 1000 500 500 500)
 
 python mnist_train.py --nepochs ${nepochs[$SLURM_ARRAY_TASK_ID]} \
-                --width ${width[$SLURM_ARRAY_TASK_ID]} --nsamples 100 \
+                --width ${width[$SLURM_ARRAY_TASK_ID]} --nsamples 10000 \
                 --lr 0.001 --init_fac 1 \
-                --lmbd 1 \
+                --lmbd 0 \
                 --weight_decay 0.00 \
                 --batch_size 100 \
-                --dir checkpoints/mnist_n100_lambd1_w \
+                --dir checkpoints/mnist_n10000_lambd0_w \
                 --ntries 3 \
